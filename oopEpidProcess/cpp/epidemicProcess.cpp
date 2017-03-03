@@ -48,8 +48,10 @@ void epidemicProcess::clearTheGraph() {
   }
 }
 
-void epidemicProcess::runEpidProcess(double &infectedratio,
-                                     double &timepassed) {
+tuple epidemicProcess::runEpidProcess( double lambda, double mu) {
+  std::random_device rd;     // only used once to initialise (seed) engine
+  std::mt19937 rng(rd());
+
   std::uniform_int_distribution<int> uni(1, N);
   int infected = uni(rng);  // 1 to N
 
@@ -133,9 +135,10 @@ void epidemicProcess::runEpidProcess(double &infectedratio,
     }
   }
 
-  infectedratio = float(infected_after) / N;
-  timepassed = time;
+  return boost::python::make_tuple( float(infected_after) / N, time);
 }
+
+
 
 double epidemicProcess::getAverageDegree() {
   int degree = 0;

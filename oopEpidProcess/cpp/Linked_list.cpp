@@ -1,7 +1,8 @@
+// Copyright <Zhanibek> 2017
+
 #include <algorithm>
 #include <fstream>
 #include <stdio.h>
-//#include <random>
 #include "Linked_list.hpp"
 void Linked_list::add_Node(int num) {
   connectivity++;

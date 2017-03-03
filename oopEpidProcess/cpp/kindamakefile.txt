@@ -1,0 +1,2 @@
+
+g++ -std=c++11 -g -shared -fPIC -I/usr/include/python2.7 epidemicProcess.cpp Linked_list.cpp -lpython2.7 -lboost_python -o test.so

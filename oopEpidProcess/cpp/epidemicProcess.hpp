@@ -1,34 +1,36 @@
 // "Copyright 2017 [Zhanibek Omarov]"
-
-
+#include <boost/python.hpp>
 #include <string>
 #include <vector>
 #include <random>
 #include "Linked_list.hpp"
+typedef boost::python::tuple tuple;
 
 class epidemicProcess {
  public:
-  epidemicProcess(std::string pathToGraph) {
-    initializeGraph(pathToGraph);
-    rng = std::mt19937(rd());
+  epidemicProcess() {
   }
 
-  epidemicProcess();
+  // epidemicProcess();
   void initializeGraph(std::string pathToGraph);
   void clearTheGraph();
 
-  void runEpidProcess(double &infectedratio, double &timepassed);
+  tuple runEpidProcess(double lambda, double mu);
 
 
   double getAverageDegree();
 
  private:
-  double lambda;
-  double mu;
   int N;
   std::vector<Linked_list *> nodes;
-
-
-  std::random_device rd;     // only used once to initialise (seed) engine
-  std::mt19937 rng;
 };
+
+BOOST_PYTHON_MODULE(libpyEpidProcess) {
+  using namespace boost::python;
+  class_<epidemicProcess>("epidemicProcess")
+        .def("initializeGraph", &epidemicProcess::initializeGraph)
+        .def("clearTheGraph", &epidemicProcess::clearTheGraph)
+        .def("runEpidProcess", &epidemicProcess::runEpidProcess)
+        .def("getAverageDegree", &epidemicProcess::getAverageDegree)
+        ;
+}
