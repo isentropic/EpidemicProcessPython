@@ -1,24 +1,20 @@
 // "Copyright 2017 [Zhanibek Omarov]"
-
-#include "Linked_list.hpp"
-#include "epidemicProcess.hpp"
 #include <cmath>
 #include <fstream>
 #include <iostream>
-#include <random>
 #include <sstream>
 
-std::random_device rd;
-std::mt19937 rng(rd());
-std::uniform_int_distribution<int> getRandomNode;
+#include "Linked_list.hpp"
+#include "epidemicProcess.hpp"
+
 
 void epidemicProcess::initializeGraph(std::string thepath) {
   std::ifstream nodes_file(thepath);
 
   if (nodes_file.is_open()) {
-    // std::cout<<"files are opened"<<"\n";
+    std::cout << "rawnetwork files are opened" << "\n";
   } else {
-    std::cout << "couldnt open files, terminating"
+    std::cout << "couldnt open rawnetwork files, terminating"
               << "\n";
     throw 1;
   }
@@ -54,7 +50,9 @@ void epidemicProcess::clearTheGraph() {
 
 void epidemicProcess::runEpidProcess(double &infectedratio,
                                      double &timepassed) {
-  int infected = getRandomNode(rng);
+  std::uniform_int_distribution<int> uni(1, N);
+  int infected = uni(rng);  // 1 to N
+
   nodes[infected - 1]->infect();
   // std::cout<<"Random node to be infected: "<<infected<<"\n";
   // the dynamics
@@ -126,7 +124,7 @@ void epidemicProcess::runEpidProcess(double &infectedratio,
       if (nodes[i]->infected)
         infected_nodes++;
     }
-  } // for loop ended
+  }  // for loop ended
 
   int infected_after = 0;
   for (int i = 0; i < N; i++) {
