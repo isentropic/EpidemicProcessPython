@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC -g   -shared -Wl,-soname,libpyEpidProcess.so -o libpyEpidProcess.so CMakeFiles/pyEpidProcess.dir/epidemicProcess.cpp.o CMakeFiles/pyEpidProcess.dir/Linked_list.cpp.o -lboost_python-mt 
