@@ -1,12 +1,12 @@
 // "Copyright 2017 [Zhanibek Omarov]"
 
+#include "Linked_list.hpp"
+#include "epidemicProcess.hpp"
 #include <cmath>
+#include <fstream>
+#include <iostream>
 #include <random>
 #include <sstream>
-#include <iostream>
-#include <fstream>
-#include "epidemicProcess.hpp"
-#include "Linked_list.hpp"
 
 std::random_device rd;
 std::mt19937 rng(rd());
@@ -18,7 +18,8 @@ void epidemicProcess::initializeGraph(std::string thepath) {
   if (nodes_file.is_open()) {
     // std::cout<<"files are opened"<<"\n";
   } else {
-    std::cout << "couldnt open files, terminating" << "\n";
+    std::cout << "couldnt open files, terminating"
+              << "\n";
     throw 1;
   }
 
@@ -34,9 +35,9 @@ void epidemicProcess::initializeGraph(std::string thepath) {
         first = false;
         head = a;
       } else {
-      nodes[head-1]->add_Node(a);
-      // nodes[head-1]->connectivity++;
-      // already increased within linkedlist.cpp
+        nodes[head - 1]->add_Node(a);
+        // nodes[head-1]->connectivity++;
+        // already increased within linkedlist.cpp
       }
     }
   }
@@ -51,10 +52,10 @@ void epidemicProcess::clearTheGraph() {
   }
 }
 
-
-void epidemicProcess::runEpidProcess(double &infectedratio, double &timepassed) {
+void epidemicProcess::runEpidProcess(double &infectedratio,
+                                     double &timepassed) {
   int infected = getRandomNode(rng);
-  nodes[infected-1]->infect();
+  nodes[infected - 1]->infect();
   // std::cout<<"Random node to be infected: "<<infected<<"\n";
   // the dynamics
   std::vector<int> neighbors;
@@ -77,21 +78,23 @@ void epidemicProcess::runEpidProcess(double &infectedratio, double &timepassed) 
         time = time + 1.0 / double(active_nodes);
         neighbors = nodes[i]->containing_nodes();
         for (int j = 0; j < neighbors.size(); j++) {
-          if (!nodes[neighbors[j] - 1]->infected && !nodes[neighbors[j] - 1]->exposed) {
+          if (!nodes[neighbors[j] - 1]->infected &&
+              !nodes[neighbors[j] - 1]->exposed) {
             float infecting_chance = random_no(rng);
-              // std::cout<<infecting_chance<<"infecting chance\n";
-              if (infecting_chance < lambda) {
-                new_infected_list.push_back(neighbors[j]);
-              } else {
-                // std::cout<<"A node is exposed \n";
-                new_exposing_list.push_back(neighbors[j]);
-              }
-            } else if(!nodes[neighbors[j] - 1]->infected && nodes[neighbors[j] - 1]->exposed) {
-              if (random_no(rng) < mu) {
-                new_infected_list.push_back(neighbors[j]);
-              }
+            // std::cout<<infecting_chance<<"infecting chance\n";
+            if (infecting_chance < lambda) {
+              new_infected_list.push_back(neighbors[j]);
+            } else {
+              // std::cout<<"A node is exposed \n";
+              new_exposing_list.push_back(neighbors[j]);
+            }
+          } else if (!nodes[neighbors[j] - 1]->infected &&
+                     nodes[neighbors[j] - 1]->exposed) {
+            if (random_no(rng) < mu) {
+              new_infected_list.push_back(neighbors[j]);
             }
           }
+        }
         nodes[i]->active = false;
         neighbors.clear();
       }
@@ -108,7 +111,7 @@ void epidemicProcess::runEpidProcess(double &infectedratio, double &timepassed) 
     // infecting
     if (!new_infected_list.empty()) {
       for (int j = 0; j < new_infected_list.size(); j++) {
-        nodes[ new_infected_list[j] - 1]->infect();
+        nodes[new_infected_list[j] - 1]->infect();
       }
     }
 
@@ -116,14 +119,14 @@ void epidemicProcess::runEpidProcess(double &infectedratio, double &timepassed) 
 
     active_nodes = 0;
     infected_nodes = 0;
-    for(int i = 0; i<N; i++){
-      if(nodes[i]->active){
+    for (int i = 0; i < N; i++) {
+      if (nodes[i]->active) {
         active_nodes++;
       }
-      if(nodes[i]->infected) infected_nodes++;
+      if (nodes[i]->infected)
+        infected_nodes++;
     }
-  }  // for loop ended
-
+  } // for loop ended
 
   int infected_after = 0;
   for (int i = 0; i < N; i++) {
@@ -132,15 +135,14 @@ void epidemicProcess::runEpidProcess(double &infectedratio, double &timepassed) 
     }
   }
 
-
-  infectedratio = float(infected_after)/N;
+  infectedratio = float(infected_after) / N;
   timepassed = time;
 }
 
 double epidemicProcess::getAverageDegree() {
   int degree = 0;
-  for(int i = 0; i < N; i++){
-    degree+= nodes[i]->connectivity;
+  for (int i = 0; i < N; i++) {
+    degree += nodes[i]->connectivity;
   }
   return degree / double(N);
 }

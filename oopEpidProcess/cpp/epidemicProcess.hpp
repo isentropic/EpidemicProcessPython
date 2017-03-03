@@ -1,15 +1,12 @@
 // "Copyright 2017 [Zhanibek Omarov]"
 
-#include <vector>
-#include <string>
 #include "Linked_list.hpp"
-
+#include <string>
+#include <vector>
 
 class epidemicProcess {
- public:
-  epidemicProcess(std::string pathToGraph) {
-    initializeGraph(pathToGraph);
-  }
+public:
+  epidemicProcess(std::string pathToGraph) { initializeGraph(pathToGraph); }
 
   void initializeGraph(std::string pathToGraph);
   void clearTheGraph();
@@ -17,11 +14,11 @@ class epidemicProcess {
   void startEpidProcess(int nodetostart);
   void startEpidProcess();
 
-  double getAverageDegree()
+  double getAverageDegree();
 
- private:
+private:
   double lambda;
   double mu;
   int N;
-  std::vector<Linked_list*> nodes;
+  std::vector<Linked_list *> nodes;
 };
