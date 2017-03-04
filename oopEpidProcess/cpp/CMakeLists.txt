@@ -19,7 +19,10 @@ IF(Boost_FOUND)
 ELSEIF(NOT Boost_FOUND)
   MESSAGE(FATAL_ERROR "Unable to find correct Boost version. Did you set BOOST_ROOT?")
 ENDIF()
-ADD_DEFINITIONS("-Wall")
+ADD_DEFINITIONS(
+    -std=c++11 # Or -std=c++0x
+    # Other flags
+)
 IF(CMAKE_COMPILER_IS_GNUCXX)
   ADD_DEFINITIONS("-Wall")
 ELSE()
