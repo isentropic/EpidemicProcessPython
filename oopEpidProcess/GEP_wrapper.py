@@ -66,11 +66,11 @@ for i in range(no_of_workers):
 # 'PoolWorker-2'
 
 
-def worker(muandlambda):
+def worker((lambdaval, muval)):
     """...Worker function to return tuples..."""
 
     theObject = graphObjects[mp.current_process.name]
-    theresult = theObject.runEpidProcess(muandlambda[0], muandlambda[1])
+    theresult = theObject.runEpidProcess(lambdaval, muval)
     theObject.clearTheGraph()
     return theresult
 
@@ -79,5 +79,5 @@ pool = mp.Pool(processes=no_of_workers)
 
 print "Workers Start the Process"
 pretotalresults = []
-pretotalresults = (pool.map(worker, inputwork))
+pretotalresults = pool.map(worker, inputwork)
 print "Process ended"
