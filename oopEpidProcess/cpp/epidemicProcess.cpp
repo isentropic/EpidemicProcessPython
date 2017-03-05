@@ -12,7 +12,7 @@ void epidemicProcess::initializeGraph(std::string thepath) {
   std::ifstream nodes_file(thepath);
 
   if (nodes_file.is_open()) {
-    std::cout << "rawnetwork files are opened" << "\n";
+    // std::cout << "rawnetwork files are opened" << "\n";
   } else {
     std::cout << "couldnt open rawnetwork files, terminating"
               << "\n";

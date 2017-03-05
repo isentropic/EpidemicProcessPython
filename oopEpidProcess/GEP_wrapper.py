@@ -52,11 +52,6 @@ for i in range(no_of_lambda):
         inputwork.append((lambdas[i], mus[i]))
 inputwork = np.array(inputwork)
 
-
-os.system('mkdir -p %s/../results/pGEP%s/p_inf' % (fullpath, samplename))
-os.system('mkdir -p %s/../results/pGEP%s/rvslambda' % (fullpath, samplename))
-
-
 graphObjects = {}
 for i in range(no_of_workers):
     graphObjects["PoolWorker-%i" % (i+1)] = libpyEpidProcess.epidemicProcess()
@@ -76,7 +71,59 @@ def worker((lambdaval, muval)):
 
 pool = mp.Pool(processes=no_of_workers)
 
-print "Workers Start the Process"
-pretotalresults = []
-pretotalresults = pool.map(worker, inputwork)
-print "Process ended"
+os.system('mkdir -p %s/../results/pGEP%s/p_inf' % (fullpath, samplename))
+os.system('mkdir -p %s/../results/pGEP%s/rvslambda' % (fullpath, samplename))
+
+for asize in samplesizes:
+    os.system("python ../wrappers/ER_input_size_wrapper.py %s 5" % (asize))
+    # os.system("python input_size_wrapper.py %s 0.1"%(asize))
+
+    my1stfile = open('%s/../results/pGEP%s/P_infVsLambda/P_inf_raw%s.txt' %
+                     (fullpath, samplename, asize), 'w')
+    my2ndfile = open('%s/../results/pGEP%s/rvslambda/raw_results%s.txt' %
+                     (fullpath, samplename, asize), 'w')
+
+    my1stfile.write("#lambda\ttime\tsurvivers\n")
+    my2ndfile.write('#ration\tlambda\tmu\n')
+
+    print "Workers Start the Process"
+    pretotalresults = []
+    pretotalresults = pool.map(worker, inputwork)
+    print "Process ended"
+
+    for i in range(no_of_lambda):
+        print "At lambda = %f" % (lambdas[i])
+
+        terminating_times = []
+        terminating_ratios = []
+        for j in range(parallel_samples):
+            for tpl in pretotalresults[i * parallel_samples:(i + 1) * parallel_samples]:
+                terminating_times.append(tpl[0])
+                terminating_ratios.append(tpl[1])
+
+        time_init = 1.0
+        time_fin = max(terminating_times)
+        steps_for_t = 1000
+        timearray = np.linspace(time_init, time_fin, steps_for_t)
+
+        # Deal with P_raw
+        survivers = np.zeros(steps_for_t)
+
+        for j in range(steps_for_t):
+            survivingratio = 0.0
+            for k in range(parallel_samples):
+                if terminating_times[k] > timearray[j]:
+                    survivingratio = survivingratio + 1.0
+
+            survivingratio = survivingratio / float(parallel_samples)
+            survivers[j] = survivingratio
+            my1stfile.write("%f\t%f\t%f\n" %
+                            (lambdas[i], timearray[j], survivers[j]))
+
+        # Deal with with rsmall_raw
+        for k in range(parallel_samples):
+            my2ndfile.write("%f\t%f\t%f\n" %
+                            (terminating_ratios[k], lambdas[i], mus[i]))
+
+print "\n PROCESS FINISHED, total elapsed time: ", time.time() - starting_time
+pool.close()
