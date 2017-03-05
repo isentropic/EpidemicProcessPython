@@ -55,8 +55,7 @@ inputwork = np.array(inputwork)
 graphObjects = {}
 for i in range(no_of_workers):
     graphObjects["PoolWorker-%i" % (i+1)] = libpyEpidProcess.epidemicProcess()
-    graphObjects["PoolWorker-%i" % (i+1)].initializeGraph(
-                                "../networkRaw/total_graph.txt")
+
 # get_total_value(proc_id, lambdaval, T):
 # 'PoolWorker-2'
 
@@ -75,10 +74,14 @@ os.system('mkdir -p %s/../results/pGEP%s/p_inf' % (fullpath, samplename))
 os.system('mkdir -p %s/../results/pGEP%s/rvslambda' % (fullpath, samplename))
 
 for asize in samplesizes:
+    for i in range(no_of_workers):
+        graphObjects["PoolWorker-%i" % (i+1)].initializeGraph(
+                                    "../networkRaw/total_graph.txt")
+
     os.system("python ../wrappers/ER_input_size_wrapper.py %s 5" % (asize))
     # os.system("python input_size_wrapper.py %s 0.1"%(asize))
 
-    my1stfile = open('%s/../results/pGEP%s/P_infVsLambda/P_inf_raw%s.txt' %
+    my1stfile = open('%s/../results/pGEP%s/p_inf/P_inf_raw%s.txt' %
                      (fullpath, samplename, asize), 'w')
     my2ndfile = open('%s/../results/pGEP%s/rvslambda/raw_results%s.txt' %
                      (fullpath, samplename, asize), 'w')
