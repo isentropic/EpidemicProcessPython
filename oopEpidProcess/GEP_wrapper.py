@@ -1,4 +1,4 @@
-"""This module runs epidemic proocesses using multiple processes"""
+"""This module runs epidemic proocesses using multiple processes."""
 import os
 import numpy as np
 # import random
@@ -68,7 +68,6 @@ for i in range(no_of_workers):
 
 def worker((lambdaval, muval)):
     """...Worker function to return tuples..."""
-
     theObject = graphObjects[mp.current_process.name]
     theresult = theObject.runEpidProcess(lambdaval, muval)
     theObject.clearTheGraph()
