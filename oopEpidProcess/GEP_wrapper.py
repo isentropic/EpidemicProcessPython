@@ -68,7 +68,7 @@ for i in range(no_of_workers):
 
 def worker((lambdaval, muval)):
     """...Worker function to return tuples..."""
-    theObject = graphObjects[mp.current_process.name]
+    theObject = graphObjects[mp.current_process().name]
     theresult = theObject.runEpidProcess(lambdaval, muval)
     theObject.clearTheGraph()
     return theresult
