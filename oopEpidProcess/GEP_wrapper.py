@@ -42,24 +42,7 @@ for i in range(no_of_lambda):
     else:
         mus[i] = themu
 
-inputwork = []
-for i in range(no_of_lambda):
-    for j in range(parallel_samples):
-        inputwork.append((lambdas[i], mus[i]))
-# inputwork = np.array(inputwork)
-# print inputwork
-# get_total_value(proc_id, lambdaval, T):
-# 'PoolWorker-2'
-
-graphObjects = {}
-
-for i in range(no_of_workers):
-    graphObjects["PoolWorker-%i" % (i+1)] = libpyEpidProcess.epidemicProcess()
-    # print i + 1
-
-
-def worker(thetup):
-    """...Worker function to return tuples..."""
+"""def worker(thetup):
     global graphObjects
     number = int(mp.current_process().name[11:])
     number = number % no_of_workers
@@ -73,13 +56,43 @@ def worker(thetup):
         return theresult
     else:
         print "Wrong Process accessing", mp.current_process().name
-        return (0, 0)
+        return (0, 0)"""
 
 
-def updateSizes():
-    for key, value in graphObjects.iteritems():
-        value.initializeGraph("../networkRaw/total_graph.txt")
+class GraphProcess(mp.Process):
+    """Extends mp.Process, epidProcess object wrapper."""
 
+    def __init__(self, inputQueue, resultsQueue, graphObject):
+        """Constructor of the GraphProcess."""
+        super(GraphProcess, self).__init__()
+        self.resultsQueue = resultsQueue
+        self.inputQueue = inputQueue
+        self.graphObject = graphObject
+        self.graphObject.initializeGraph("../networkRaw/total_graph.txt")
+
+    def run(self):
+        """Run epidemic processes till there are works in queue."""
+        try:
+            for theTup in iter(self.inputQueue.get, 'STOP'):
+                result = self.graphObject.runEpidProcess(theTup[0], theTup[1])
+                result = theTup + (result[0], result[1],)  # concatenation
+                self.graphObject.clearTheGraph()
+                self.resultsQueue.put(result)
+        except Exception, e:
+            self.resultsQueue.put("%s fail %s with: %s" %
+                                  (mp.current_process().name, e.message))
+        return True
+
+
+def getTasksQueue():
+    """Return jobs as queue of tuples made of (lambda, mu) with "STOP"."""
+    inputtasks = mp.Queue()
+    for i in range(no_of_lambda):
+        for j in range(parallel_samples):
+            inputtasks.put((lambdas[i], mus[i]))
+    for i in range(no_of_workers):
+        inputtasks.put("STOP")
+    return inputtasks
 
 
 os.system('mkdir -p %s/../results/pGEP%s/p_inf' % (fullpath, samplename))
@@ -87,11 +100,26 @@ os.system('mkdir -p %s/../results/pGEP%s/rvslambda' % (fullpath, samplename))
 
 for asize in samplesizes:
     os.system("python ../wrappers/ER_input_size_wrapper.py %s 5" % (asize))
-    updateSizes()
-    pool = mp.Pool(no_of_workers)
-    pretotalresults = pool.map(worker, inputwork)
-    pool.close()
-    pool.join()
+
+    my3rdfile = open('%s/../results/pGEP%s/raw_totalres%s.txt' %
+                     (fullpath, samplename, asize), 'w')
+    resultsQ = mp.Queue()
+    inputQ = getTasksQueue()
+
+    processes = []
+    for w in range(no_of_workers):
+        p = GraphProcess(inputQ, resultsQ, libpyEpidProcess.epidemicProcess())
+        p.start()
+        processes.append(p)
+    for p in processes:
+        p.join()
+
+    resultsQ.put("STOP")
+
+    my3rdfile.write("#lambda\tmu\tr\ttime\n")
+    for result in iter(resultsQ.get, 'STOP'):
+        my3rdfile.write("%f\t%f\t%f\t%f\n" %
+                        (result[0], result[1], result[2], result[3]))
 
 '''
 if __name__ == '__main__':
