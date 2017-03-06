@@ -11,7 +11,7 @@ fullpath = os.path.dirname(os.path.realpath(__file__))
 
 additionalcomment = ''
 samplesizes = ['2e3','4e3', '8e3']
-parallel_samples = int(1e2)
+parallel_samples = int(1e3)
 no_of_lambda = 51
 lambda_min = 0.15
 lambda_max = 0.25
@@ -101,27 +101,29 @@ os.system('mkdir -p %s/../results/pGEP%s/rvslambda' % (fullpath, samplename))
 for asize in samplesizes:
     os.system("python ../wrappers/ER_input_size_wrapper.py %s 5" % (asize))
 
-    my3rdfile = open('%s/../results/pGEP%s/raw_totalres%s.txt' %
-                     (fullpath, samplename, asize), 'w')
-    resultsQ = mp.Queue()
     inputQ = getTasksQueue()
 
     processes = []
+    resultsQ = mp.Queue()
     for w in range(no_of_workers):
         p = GraphProcess(inputQ, resultsQ, libpyEpidProcess.epidemicProcess())
         p.start()
         processes.append(p)
+    print "Processes Started"
     for p in processes:
         p.join()
     # for p in processes:
-        
-
+    print "Processes Ended"
     resultsQ.put("STOP")
 
+    my3rdfile = open('%s/../results/pGEP%s/raw_totalres%s.txt' %
+                     (fullpath, samplename, asize), 'w')
+
     my3rdfile.write("#lambda\tmu\tr\ttime\n")
-    for result in iter(resultsQ.get, 'STOP'):
+    for result in iter(resultsQ.get, "STOP"):
         my3rdfile.write("%f\t%f\t%f\t%f\n" %
                         (result[0], result[1], result[2], result[3]))
+    my3rdfile.close()
 
 '''
 if __name__ == '__main__':
