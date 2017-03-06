@@ -10,7 +10,7 @@ starting_time = time.time()
 fullpath = os.path.dirname(os.path.realpath(__file__))
 
 additionalcomment = ''
-samplesizes = ['2e3','4e3', '8e3']
+samplesizes = ['2e3', '4e3', '8e3']
 parallel_samples = int(1e3)
 no_of_lambda = 51
 lambda_min = 0.15
@@ -90,8 +90,8 @@ def getTasksQueue():
     for i in range(no_of_lambda):
         for j in range(parallel_samples):
             inputtasks.put((lambdas[i], mus[i]))
-    for i in range(no_of_workers):
-        inputtasks.put("STOP")
+    # for i in range(no_of_workers):
+    #     inputtasks.put("STOP")
     return inputtasks
 
 
@@ -109,6 +109,8 @@ for asize in samplesizes:
         p = GraphProcess(inputQ, resultsQ, libpyEpidProcess.epidemicProcess())
         p.start()
         processes.append(p)
+        inputQ.put("STOP")
+
     print "Processes Started"
     for p in processes:
         p.join()
