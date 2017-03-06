@@ -10,9 +10,9 @@ starting_time = time.time()
 fullpath = os.path.dirname(os.path.realpath(__file__))
 
 additionalcomment = ''
-samplesizes = ['4e3', '8e3']
-parallel_samples = int(10)
-no_of_lambda = 11
+samplesizes = ['2e3','4e3', '8e3']
+parallel_samples = int(1e2)
+no_of_lambda = 51
 lambda_min = 0.15
 lambda_max = 0.25
 
@@ -37,7 +37,7 @@ lambdas = np.linspace(lambda_min, lambda_max, no_of_lambda)
 mus = np.zeros(no_of_lambda)
 
 for i in range(no_of_lambda):
-    if mu_equals_lambda:
+    if not mu_equals_lambda:
         mus[i] = lambdas[i]
     else:
         mus[i] = themu
@@ -113,6 +113,8 @@ for asize in samplesizes:
         processes.append(p)
     for p in processes:
         p.join()
+    # for p in processes:
+        
 
     resultsQ.put("STOP")
 
