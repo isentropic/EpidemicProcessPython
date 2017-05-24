@@ -19,7 +19,7 @@ lambda_max = 0.25
 mu_equals_lambda = False
 themu = 0.4
 
-no_of_workers = mp.cpu_count()-1
+no_of_workers = mp.cpu_count() - 1
 
 
 print "..................................."
